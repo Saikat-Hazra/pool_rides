@@ -1,25 +1,21 @@
 import { useEffect, useState } from 'react'
-import { getAllUsers, updateUser } from '@/services/authService'
-import { getAllPools, getAllReports, updateReportStatus } from '@/services/poolService'
-import { useUIStore } from '@/store/uiStore'
-import type { User, Pool, Report } from '@/types'
+import { getAllUsers } from '@/services/authService'
+import { getAllPools } from '@/services/poolService'
+import type { User, Pool } from '@/types'
 import { COLLEGES } from '@/data/seed'
-import { Shield, CheckCircle, XCircle, Flag, Users, Car, Clock, Lock } from 'lucide-react'
+import { Shield, Car, Clock, Lock } from 'lucide-react'
 
 const TABS = ['Active Logins', 'Pools'] as const
 type AdminTab = typeof TABS[number]
 
 export default function AdminPanel() {
-  const { addToast } = useUIStore()
   const [tab, setTab] = useState<AdminTab>('Active Logins')
   const [users, setUsers] = useState<User[]>([])
   const [pools, setPools] = useState<Pool[]>([])
-  const [reports, setReports] = useState<Report[]>([])
 
   function refresh() {
     setUsers(getAllUsers().filter((u) => u.role !== 'admin'))
     setPools(getAllPools())
-    setReports(getAllReports())
   }
 
   useEffect(() => { refresh() }, [])
@@ -50,17 +46,9 @@ export default function AdminPanel() {
               tab === t ? 'bg-slate-800 text-white shadow-sm shadow-black' : 'text-slate-500 hover:text-slate-300'
             }`}
           >
-            {t === 'Users' && <Users className="w-3.5 h-3.5" />}
             {t === 'Active Logins' && <Clock className="w-3.5 h-3.5" />}
-            {t === 'Reports' && <Flag className="w-3.5 h-3.5" />}
             {t === 'Pools' && <Car className="w-3.5 h-3.5" />}
             {t}
-            {t === 'Users' && pendingUsers.length > 0 && (
-              <span className="ml-1 w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center">{pendingUsers.length}</span>
-            )}
-            {t === 'Reports' && openReports.length > 0 && (
-              <span className="ml-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center">{openReports.length}</span>
-            )}
           </button>
         ))}
       </div>
