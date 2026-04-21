@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
+import { useState, Fragment } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Car, ChevronRight, ChevronLeft, Check } from 'lucide-react'
-import { OnboardingSchema, type OnboardingFormData } from '@/schemas'
+import { ChevronRight, ChevronLeft, Check } from 'lucide-react'
+import { OnboardingSchema } from '@/schemas'
+import { z } from 'zod'
+
+type FormInput = z.input<typeof OnboardingSchema>
+type FormOutput = z.output<typeof OnboardingSchema>
 import { useAuthStore } from '@/store/authStore'
 import { updateUser } from '@/services/authService'
 import { useUIStore } from '@/store/uiStore'
@@ -19,7 +23,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(0)
   const [selectedDays, setSelectedDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri'])
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<OnboardingFormData>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormInput, any, FormOutput>({
     resolver: zodResolver(OnboardingSchema),
     defaultValues: {
       preferredDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
@@ -37,7 +41,7 @@ export default function Onboarding() {
     setValue('preferredDays', next as any)
   }
 
-  async function onSubmit(data: OnboardingFormData) {
+  async function onSubmit(data: FormOutput) {
     if (!currentUser) return
     const updated = {
       ...currentUser,
@@ -56,30 +60,32 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-lg">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-teal-600/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-600/5 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="w-full max-w-lg relative z-10">
         {/* Logo */}
-        <div className="flex items-center gap-2 font-bold text-teal-700 text-lg mb-8 justify-center">
-          <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-            <Car className="w-4 h-4 text-white" />
-          </div>
+        <div className="flex items-center gap-2 font-bold text-white text-lg mb-8 justify-center">
+          <img src="/Pool-rides_logo.png" alt="PoolRides" className="w-8 h-8 object-contain" />
           PoolRides
         </div>
 
         {/* Progress */}
         <div className="flex items-center gap-2 mb-8">
           {STEPS_LABELS.map((label, i) => (
-            <React.Fragment key={label}>
+            <Fragment key={label}>
               <div className="flex items-center gap-1.5">
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
-                  i < step ? 'bg-teal-600 text-white' : i === step ? 'bg-teal-100 text-teal-700 border-2 border-teal-500' : 'bg-gray-100 text-gray-400'
+                  i < step ? 'bg-teal-600 text-white' : i === step ? 'bg-teal-900/40 text-teal-400 border-2 border-teal-500' : 'bg-slate-900 text-slate-500'
                 }`}>
                   {i < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
                 </div>
-                <span className={`text-xs font-medium hidden sm:block ${i === step ? 'text-teal-700' : 'text-gray-400'}`}>{label}</span>
+                <span className={`text-xs font-medium hidden sm:block ${i === step ? 'text-teal-400' : 'text-slate-500'}`}>{label}</span>
               </div>
-              {i < STEPS_LABELS.length - 1 && <div className={`flex-1 h-px ${i < step ? 'bg-teal-400' : 'bg-gray-200'}`} />}
-            </React.Fragment>
+              {i < STEPS_LABELS.length - 1 && <div className={`flex-1 h-px ${i < step ? 'bg-teal-600' : 'bg-slate-800'}`} />}
+            </Fragment>
           ))}
         </div>
 
@@ -121,8 +127,8 @@ export default function Onboarding() {
                         onClick={() => toggleDay(d)}
                         className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                           selectedDays.includes(d)
-                            ? 'bg-teal-600 text-white border-teal-600'
-                            : 'bg-white text-gray-600 border-gray-200 hover:border-teal-300'
+                            ? 'bg-teal-600 text-white border-teal-600 shadow-sm shadow-teal-900/20'
+                            : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-teal-800'
                         }`}
                       >
                         {d}

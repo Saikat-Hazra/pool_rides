@@ -1,20 +1,25 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ProfileSchema, type ProfileFormData } from '@/schemas'
+import { ProfileSchema } from '@/schemas'
+import { z } from 'zod'
+
+type FormInput = z.input<typeof ProfileSchema>
+type FormOutput = z.output<typeof ProfileSchema>
 import { useAuthStore } from '@/store/authStore'
 import { updateUser } from '@/services/authService'
 import { useUIStore } from '@/store/uiStore'
 import { VerifiedBadge } from '@/components/UI/Badges'
 import { BENGALURU_AREAS, COLLEGES } from '@/data/seed'
-import { User, Shield, AlertCircle } from 'lucide-react'
+import { Shield, AlertCircle } from 'lucide-react'
+import type { User as UserType } from '@/types'
 
 export default function Profile() {
   const { currentUser, updateCurrentUser } = useAuthStore()
   const { addToast } = useUIStore()
   const [saving, setSaving] = useState(false)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<FormInput, any, FormOutput>({
     resolver: zodResolver(ProfileSchema),
     defaultValues: {
       name: currentUser?.name ?? '',
@@ -29,10 +34,11 @@ export default function Profile() {
 
   const college = COLLEGES.find((c) => c.id === currentUser.collegeId)
 
-  async function onSubmit(data: ProfileFormData) {
+  async function onSubmit(data: FormOutput) {
+    if (!currentUser) return
     setSaving(true)
     try {
-      const updated = { ...currentUser, ...data }
+      const updated = { ...currentUser, ...data } as UserType
       updateUser(updated)
       updateCurrentUser(updated)
       addToast('Profile updated!', 'success')
@@ -49,26 +55,26 @@ export default function Profile() {
 
       {/* Identity card */}
       <div className="card p-6 mb-6 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center">
-          <span className="text-2xl font-bold text-teal-700">{currentUser.name.charAt(0)}</span>
+        <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+          <span className="text-2xl font-bold text-teal-400">{currentUser.name.charAt(0)}</span>
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="font-semibold text-gray-900 text-lg">{currentUser.name}</h2>
+            <h2 className="font-semibold text-white text-lg">{currentUser.name}</h2>
             <VerifiedBadge verified={currentUser.verifiedStatus === 'verified'} />
           </div>
-          <p className="text-sm text-gray-500">{currentUser.email}</p>
-          {college && <p className="text-sm text-teal-600 font-medium">{college.name}</p>}
+          <p className="text-sm text-slate-400">{currentUser.email}</p>
+          {college && <p className="text-sm text-teal-400 font-medium">{college.name}</p>}
         </div>
         <div>
           {currentUser.verifiedStatus === 'pending' && (
-            <div className="flex items-center gap-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+            <div className="flex items-center gap-1 text-xs text-amber-200 bg-amber-900/20 border border-amber-800/30 px-2.5 py-1 rounded-full">
               <AlertCircle className="w-3.5 h-3.5" />
               Pending verification
             </div>
           )}
           {currentUser.verifiedStatus === 'verified' && (
-            <div className="flex items-center gap-1 text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-full">
+            <div className="flex items-center gap-1 text-xs text-teal-200 bg-teal-900/20 border border-teal-800/30 px-2.5 py-1 rounded-full">
               <Shield className="w-3.5 h-3.5" />
               Verified student
             </div>
@@ -129,20 +135,20 @@ export default function Profile() {
         <h2 className="section-title mb-4">Account details</h2>
         <dl className="grid sm:grid-cols-2 gap-3 text-sm">
           <div>
-            <dt className="text-gray-400">Email</dt>
-            <dd className="font-medium text-gray-900">{currentUser.email}</dd>
+            <dt className="text-slate-500">Email</dt>
+            <dd className="font-medium text-slate-200">{currentUser.email}</dd>
           </div>
           <div>
-            <dt className="text-gray-400">College</dt>
-            <dd className="font-medium text-gray-900">{college?.name ?? '—'}</dd>
+            <dt className="text-slate-500">College</dt>
+            <dd className="font-medium text-slate-200">{college?.name ?? '—'}</dd>
           </div>
           <div>
-            <dt className="text-gray-400">Member since</dt>
-            <dd className="font-medium text-gray-900">{new Date(currentUser.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</dd>
+            <dt className="text-slate-500">Member since</dt>
+            <dd className="font-medium text-slate-200">{new Date(currentUser.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</dd>
           </div>
           <div>
-            <dt className="text-gray-400">Role</dt>
-            <dd className="font-medium text-gray-900 capitalize">{currentUser.role}</dd>
+            <dt className="text-slate-500">Role</dt>
+            <dd className="font-medium text-slate-200 capitalize">{currentUser.role}</dd>
           </div>
         </dl>
       </div>

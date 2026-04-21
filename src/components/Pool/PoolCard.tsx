@@ -1,6 +1,5 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
-import { MapPin, Clock, Users, IndianRupee, ArrowRight } from 'lucide-react'
+import { Clock, Users, IndianRupee, ArrowRight } from 'lucide-react'
 import { StatusBadge, VerifiedBadge, WomenOnlyBadge } from '@/components/UI/Badges'
 import type { RankedPool } from '@/types'
 import { COLLEGES } from '@/data/seed'

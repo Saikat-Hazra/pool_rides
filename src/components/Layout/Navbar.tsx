@@ -1,9 +1,7 @@
-import React from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { logout } from '@/services/authService'
 import {
-  Car,
   Home,
   Search,
   Plus,
@@ -40,14 +38,12 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <nav className="bg-slate-950/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center gap-2 font-bold text-teal-700 text-lg">
-            <div className="w-7 h-7 bg-teal-600 rounded-lg flex items-center justify-center">
-              <Car className="w-4 h-4 text-white" />
-            </div>
+          <Link to={currentUser?.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2 font-bold text-white text-lg">
+            <img src="/Pool-rides_logo.png" alt="PoolRides" className="w-8 h-8 object-contain" />
             PoolRides
           </Link>
 
@@ -59,8 +55,8 @@ export default function Navbar() {
                 to={to}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive(to)
-                    ? 'bg-teal-50 text-teal-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-teal-900/40 text-teal-400'
+                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-100'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -71,7 +67,7 @@ export default function Navbar() {
               <Link
                 to="/admin"
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive('/admin') ? 'bg-teal-50 text-teal-700' : 'text-gray-600 hover:bg-gray-50'
+                  isActive('/admin') ? 'bg-teal-900/40 text-teal-400' : 'text-slate-400 hover:bg-slate-900'
                 }`}
               >
                 <Shield className="w-4 h-4" />
@@ -84,24 +80,24 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <Link
               to="/profile"
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:bg-slate-900 transition-colors"
             >
-              <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center">
-                <User className="w-3.5 h-3.5 text-teal-700" />
+              <div className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+                <User className="w-3.5 h-3.5 text-teal-400" />
               </div>
-              <span className="font-medium text-gray-800 max-w-[80px] truncate">
+              <span className="font-medium text-slate-200 max-w-[80px] truncate">
                 {currentUser?.name?.split(' ')[0]}
               </span>
             </Link>
             <button
               onClick={handleLogout}
               title="Sign out"
-              className="hidden sm:flex p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+              className="hidden sm:flex p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-red-950/30 transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </button>
             <button
-              className="md:hidden p-2 text-gray-500 hover:text-gray-700"
+              className="md:hidden p-2 text-slate-400 hover:text-white"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -112,14 +108,14 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 flex flex-col gap-1 animate-fade-in">
+        <div className="md:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-xl px-4 py-3 flex flex-col gap-1 animate-fade-in">
           {currentUser?.role !== 'admin' && NAV_LINKS.map(({ to, label, icon: Icon }) => (
             <Link
               key={to}
               to={to}
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive(to) ? 'bg-teal-50 text-teal-700' : 'text-gray-700 hover:bg-gray-50'
+                isActive(to) ? 'bg-teal-900/40 text-teal-400' : 'text-slate-300 hover:bg-slate-900'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -130,16 +126,16 @@ export default function Navbar() {
             <Link
               to="/admin"
               onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-900"
             >
               <Shield className="w-4 h-4" />
               Admin
             </Link>
           )}
-          <div className="border-t border-gray-100 mt-2 pt-2">
+          <div className="border-t border-slate-800 mt-2 pt-2">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-950/30 w-full"
             >
               <LogOut className="w-4 h-4" />
               Sign out

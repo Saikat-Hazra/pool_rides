@@ -40,19 +40,31 @@ function RequireAdmin({ children }: { children: React.ReactNode }) {
 }
 
 function RedirectIfAuth({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuthStore()
+  const { isAuthenticated, isLoading, role } = useAuthStore()
   if (isLoading) return null
-  if (isAuthenticated) return <Navigate to="/dashboard" replace />
+  if (isAuthenticated) {
+    return <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} replace />
+  }
   return <>{children}</>
+}
+
+function DashboardRouter() {
+  const { role } = useAuthStore()
+  if (role === 'admin') return <Navigate to="/admin" replace />
+  return <AppLayout><Dashboard /></AppLayout>
 }
 
 // ─── App shell (authenticated layout) ────────────────────────────────────────
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-950 text-slate-200">
       <Navbar />
-      <main className="pb-16">{children}</main>
+      <div className="relative">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-teal-600/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-600/5 rounded-full blur-[120px] pointer-events-none" />
+        <main className="pb-16 relative z-10">{children}</main>
+      </div>
     </div>
   )
 }
@@ -96,7 +108,7 @@ export default function App() {
         <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
 
         {/* App (auth + nav) */}
-        <Route path="/dashboard" element={<RequireAuth><AppLayout><Dashboard /></AppLayout></RequireAuth>} />
+        <Route path="/dashboard" element={<RequireAuth><DashboardRouter /></RequireAuth>} />
         <Route path="/discover" element={<RequireAuth><AppLayout><Discover /></AppLayout></RequireAuth>} />
         <Route path="/create-pool" element={<RequireAuth><AppLayout><CreatePool /></AppLayout></RequireAuth>} />
         <Route path="/pool/:id" element={<RequireAuth><AppLayout><PoolDetails /></AppLayout></RequireAuth>} />

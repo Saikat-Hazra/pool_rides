@@ -1,4 +1,3 @@
-import React from 'react'
 import type { PoolStatus } from '@/types'
 
 const STATUS_CLASSES: Record<PoolStatus, string> = {
@@ -55,7 +54,7 @@ interface WomenOnlyBadgeProps {
 export function WomenOnlyBadge({ show }: WomenOnlyBadgeProps) {
   if (!show) return null
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-50 text-pink-700 border border-pink-200">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-900/30 text-pink-300 border border-pink-800/50">
       Women Only
     </span>
   )

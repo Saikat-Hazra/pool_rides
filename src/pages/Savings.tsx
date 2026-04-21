@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState, type ComponentType } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { getSavingsForUser } from '@/services/savingsService'
 import { calcWeeklySavings, calcMonthlySavings, calcTotalSavings, groupByWeek } from '@/utils/costCalc'
-import { TrendingUp, TrendingDown, Car, IndianRupee } from 'lucide-react'
+import { TrendingUp, Car, IndianRupee } from 'lucide-react'
 import type { SavingsEntry } from '@/types'
 
 export default function Savings() {
@@ -29,7 +29,7 @@ export default function Savings() {
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="mb-6">
         <h1 className="page-title">Savings</h1>
-        <p className="text-sm text-gray-500 mt-1">Track how much you've saved by pooling rides.</p>
+        <p className="text-sm text-slate-400 mt-1">Track how much you've saved by pooling rides.</p>
       </div>
 
       {/* Stats */}
@@ -55,12 +55,12 @@ export default function Savings() {
                 const weekLabel = new Date(w.week).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
                 return (
                   <div key={w.week} className="flex flex-col items-center gap-2 flex-1">
-                    <span className="text-xs font-semibold text-teal-700">₹{w.savings}</span>
+                    <span className="text-xs font-semibold text-teal-400">₹{w.savings}</span>
                     <div
-                      className="w-full bg-teal-500 rounded-t-md transition-all"
+                      className="w-full bg-teal-500 rounded-t-md transition-all shadow-sm shadow-teal-500/20"
                       style={{ height: `${height}px` }}
                     />
-                    <span className="text-xs text-gray-400 rotate-[-45deg] origin-top-left whitespace-nowrap">{weekLabel}</span>
+                    <span className="text-xs text-slate-500 rotate-[-45deg] origin-top-left whitespace-nowrap">{weekLabel}</span>
                   </div>
                 )
               })}
@@ -77,26 +77,26 @@ export default function Savings() {
             <div className="flex flex-col gap-6">
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">What you would have paid solo</span>
-                  <span className="font-semibold text-gray-500 line-through">₹{totalSoloWouldHaveCost}</span>
+                  <span className="text-slate-400">What you would have paid solo</span>
+                  <span className="font-semibold text-slate-500 line-through">₹{totalSoloWouldHaveCost}</span>
                 </div>
-                <div className="h-3 bg-gray-200 rounded-full" />
+                <div className="h-3 bg-slate-800 rounded-full" />
               </div>
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">What you actually paid</span>
-                  <span className="font-semibold text-teal-700">₹{totalActualPaid}</span>
+                  <span className="text-slate-400">What you actually paid</span>
+                  <span className="font-semibold text-teal-400">₹{totalActualPaid}</span>
                 </div>
-                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-teal-500 rounded-full"
                     style={{ width: `${totalSoloWouldHaveCost > 0 ? (totalActualPaid / totalSoloWouldHaveCost) * 100 : 100}%` }}
                   />
                 </div>
               </div>
-              <div className="p-4 bg-green-50 rounded-xl border border-green-200 text-center">
-                <div className="text-3xl font-bold text-green-700 mb-1">₹{total}</div>
-                <div className="text-sm text-green-600">saved across {entries.length} rides</div>
+              <div className="p-4 bg-green-900/20 rounded-xl border border-green-800/30 text-center">
+                <div className="text-3xl font-bold text-green-400 mb-1">₹{total}</div>
+                <div className="text-sm text-green-300">saved across {entries.length} rides</div>
                 {entries.length >= 22 && (
                   <div className="text-xs text-green-500 mt-1">≈ ₹{Math.round((total / entries.length) * 22)} saved per month at this rate</div>
                 )}
@@ -112,12 +112,12 @@ export default function Savings() {
           <h2 className="section-title mb-4">Ride log</h2>
           <div className="flex flex-col gap-2">
             {[...entries].reverse().slice(0, 10).map((e) => (
-              <div key={e.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div key={e.id} className="flex items-center justify-between py-2 border-b border-slate-800 last:border-0">
                 <div>
-                  <p className="text-sm text-gray-700">{new Date(e.rideDate).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
-                  <p className="text-xs text-gray-400">Paid ₹{e.pooledCost} · Solo would be ₹{e.soloEstimatedCost}</p>
+                  <p className="text-sm text-slate-200">{new Date(e.rideDate).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+                  <p className="text-xs text-slate-500">Paid ₹{e.pooledCost} · Solo would be ₹{e.soloEstimatedCost}</p>
                 </div>
-                <span className="text-sm font-semibold text-green-600">–₹{e.savingsAmount}</span>
+                <span className="text-sm font-semibold text-green-400">–₹{e.savingsAmount}</span>
               </div>
             ))}
           </div>
@@ -128,22 +128,22 @@ export default function Savings() {
 }
 
 interface SavingsStatCardProps {
-  label: string; value: string; icon: React.ComponentType<{className?: string}>; color: string
+  label: string; value: string; icon: ComponentType<{className?: string}>; color: string
 }
 const colorMapS: Record<string, string> = {
-  teal: 'bg-teal-50 text-teal-600',
-  green: 'bg-green-50 text-green-600',
-  blue: 'bg-blue-50 text-blue-600',
-  amber: 'bg-amber-50 text-amber-600',
+  teal: 'bg-teal-900/30 text-teal-400',
+  green: 'bg-green-900/30 text-green-400',
+  blue: 'bg-blue-900/30 text-blue-400',
+  amber: 'bg-amber-900/30 text-amber-400',
 }
 function SavingsStatCard({ label, value, icon: Icon, color }: SavingsStatCardProps) {
   return (
-    <div className="card p-4">
+    <div className="card p-4 border-slate-800/60 bg-slate-900/40">
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-3 ${colorMapS[color]}`}>
         <Icon className="w-4 h-4" />
       </div>
-      <div className="text-2xl font-bold text-gray-900">{value}</div>
-      <div className="text-xs text-gray-500 mt-0.5">{label}</div>
+      <div className="text-2xl font-bold text-white">{value}</div>
+      <div className="text-xs text-slate-500 mt-0.5">{label}</div>
     </div>
   )
 }

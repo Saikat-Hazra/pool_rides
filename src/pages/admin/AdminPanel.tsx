@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getAllUsers, updateUser } from '@/services/authService'
 import { getAllPools, getAllReports, updateReportStatus } from '@/services/poolService'
 import { useUIStore } from '@/store/uiStore'
 import type { User, Pool, Report } from '@/types'
 import { COLLEGES } from '@/data/seed'
-import { Shield, CheckCircle, XCircle, Flag, Users, Car, Clock } from 'lucide-react'
+import { Shield, CheckCircle, XCircle, Flag, Users, Car, Clock, Lock } from 'lucide-react'
 
-const TABS = ['Users', 'Active Logins', 'Reports', 'Pools'] as const
+const TABS = ['Active Logins', 'Pools'] as const
 type AdminTab = typeof TABS[number]
 
 export default function AdminPanel() {
   const { addToast } = useUIStore()
-  const [tab, setTab] = useState<AdminTab>('Users')
+  const [tab, setTab] = useState<AdminTab>('Active Logins')
   const [users, setUsers] = useState<User[]>([])
   const [pools, setPools] = useState<Pool[]>([])
   const [reports, setReports] = useState<Report[]>([])
@@ -24,28 +24,7 @@ export default function AdminPanel() {
 
   useEffect(() => { refresh() }, [])
 
-  function verifyUser(user: User) {
-    const updated = { ...user, verifiedStatus: 'verified' as const }
-    updateUser(updated)
-    addToast(`${user.name} verified ✓`, 'success')
-    refresh()
-  }
 
-  function suspendUser(user: User) {
-    const updated = { ...user, verifiedStatus: 'suspended' as const }
-    updateUser(updated)
-    addToast(`${user.name} suspended.`, 'info')
-    refresh()
-  }
-
-  function closeReport(report: Report) {
-    updateReportStatus(report.id, 'reviewed')
-    addToast('Report marked as reviewed.', 'success')
-    refresh()
-  }
-
-  const pendingUsers = users.filter((u) => u.verifiedStatus === 'pending')
-  const openReports = reports.filter((r) => r.status === 'open')
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
@@ -55,35 +34,20 @@ export default function AdminPanel() {
         </div>
         <div>
           <h1 className="page-title">Admin Panel</h1>
-          <p className="text-sm text-gray-500">Manage users, reports, and pilots.</p>
+          <p className="text-sm text-slate-400">Manage users, reports, and pilots.</p>
         </div>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="card p-4 text-center">
-          <div className="text-2xl font-bold text-gray-900">{users.length}</div>
-          <div className="text-xs text-gray-500">Total students</div>
-          {pendingUsers.length > 0 && <div className="text-xs text-amber-600 font-medium mt-1">{pendingUsers.length} pending</div>}
-        </div>
-        <div className="card p-4 text-center">
-          <div className="text-2xl font-bold text-gray-900">{pools.filter(p => p.status === 'open').length}</div>
-          <div className="text-xs text-gray-500">Active pools</div>
-        </div>
-        <div className="card p-4 text-center">
-          <div className={`text-2xl font-bold ${openReports.length > 0 ? 'text-red-600' : 'text-gray-900'}`}>{openReports.length}</div>
-          <div className="text-xs text-gray-500">Open reports</div>
-        </div>
-      </div>
+
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 mb-6 bg-slate-900 border border-slate-800 p-1 rounded-lg w-fit">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-5 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 ${
-              tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            className={`px-5 py-1.5 rounded-md text-sm font-medium transition-all flex items-center gap-1.5 ${
+              tab === t ? 'bg-slate-800 text-white shadow-sm shadow-black' : 'text-slate-500 hover:text-slate-300'
             }`}
           >
             {t === 'Users' && <Users className="w-3.5 h-3.5" />}
@@ -92,93 +56,42 @@ export default function AdminPanel() {
             {t === 'Pools' && <Car className="w-3.5 h-3.5" />}
             {t}
             {t === 'Users' && pendingUsers.length > 0 && (
-              <span className="ml-1 w-4 h-4 rounded-full bg-amber-500 text-white text-xs flex items-center justify-center">{pendingUsers.length}</span>
+              <span className="ml-1 w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center">{pendingUsers.length}</span>
             )}
             {t === 'Reports' && openReports.length > 0 && (
-              <span className="ml-1 w-4 h-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">{openReports.length}</span>
+              <span className="ml-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center">{openReports.length}</span>
             )}
           </button>
         ))}
       </div>
 
-      {/* Users tab */}
-      {tab === 'Users' && (
-        <div className="card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">College</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Activity</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {users.map((u) => {
-                const college = COLLEGES.find((c) => c.id === u.collegeId)
-                return (
-                  <tr key={u.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{u.name}</div>
-                      <div className="text-xs text-gray-400">{u.email}</div>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">{college?.name ?? '—'}</td>
-                    <td className="px-4 py-3 text-gray-500 text-xs hidden md:table-cell">
-                      <div className="text-gray-700">Joined: {new Date(u.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
-                      <div className="mt-0.5">Last login: {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Never'}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusPill status={u.verifiedStatus} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-2">
-                        {u.verifiedStatus !== 'verified' && u.verifiedStatus !== 'suspended' && (
-                          <button onClick={() => verifyUser(u)} className="flex items-center gap-1 text-xs py-1 px-2.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition-colors">
-                            <CheckCircle className="w-3 h-3" /> Verify
-                          </button>
-                        )}
-                        {u.verifiedStatus !== 'suspended' && (
-                          <button onClick={() => suspendUser(u)} className="flex items-center gap-1 text-xs py-1 px-2.5 rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors">
-                            <XCircle className="w-3 h-3" /> Suspend
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-          {users.length === 0 && <p className="py-8 text-center text-sm text-gray-400">No students yet.</p>}
-        </div>
-      )}
+
 
       {/* Active Logins tab */}
       {tab === 'Active Logins' && (
         <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Student Name</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">College</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Last Login Record</th>
+              <tr className="bg-slate-900/80 border-b border-slate-800">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Student Name</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">College</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Last Login Record</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-800">
               {users
                 .filter((u) => u.lastLoginAt)
                 .sort((a, b) => new Date(b.lastLoginAt!).getTime() - new Date(a.lastLoginAt!).getTime())
                 .map((u) => {
                   const college = COLLEGES.find((c) => c.id === u.collegeId)
                   return (
-                    <tr key={u.id} className="hover:bg-gray-50">
+                    <tr key={u.id} className="hover:bg-slate-800/30 transition-colors">
                       <td className="px-4 py-3">
-                        <div className="font-medium text-gray-900">{u.name}</div>
-                        <div className="text-xs text-gray-400">{u.email}</div>
+                        <div className="font-medium text-white">{u.name}</div>
+                        <div className="text-xs text-slate-500">{u.email}</div>
                       </td>
-                      <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">{college?.name ?? '—'}</td>
-                      <td className="px-4 py-3 text-teal-700 font-medium text-xs">
+                      <td className="px-4 py-3 text-slate-400 hidden sm:table-cell">{college?.name ?? '—'}</td>
+                      <td className="px-4 py-3 text-teal-400 font-medium text-xs">
                         {new Date(u.lastLoginAt!).toLocaleString('en-IN', {
                           day: 'numeric',
                           month: 'short',
@@ -199,73 +112,56 @@ export default function AdminPanel() {
         </div>
       )}
 
-      {/* Reports tab */}
-      {tab === 'Reports' && (
-        <div className="flex flex-col gap-3">
-          {reports.length === 0 ? (
-            <div className="card flex flex-col items-center py-12 text-center">
-              <Shield className="w-8 h-8 text-gray-300 mb-3" />
-              <p className="text-sm font-medium text-gray-700">No reports to review</p>
-              <p className="text-xs text-gray-400">The community looks healthy.</p>
-            </div>
-          ) : reports.map((r) => {
-            const reporter = users.find((u) => u.id === r.reporterUserId)
-            return (
-              <div key={r.id} className={`card p-4 ${r.status === 'open' ? 'border-red-200 bg-red-50' : ''}`}>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex gap-2 mb-1">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.status === 'open' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'}`}>{r.status}</span>
-                      <span className="text-xs text-gray-400">{new Date(r.createdAt).toLocaleDateString('en-IN')}</span>
-                    </div>
-                    <p className="text-sm text-gray-900 font-medium mb-0.5">By: {reporter?.name ?? r.reporterUserId}</p>
-                    <p className="text-sm text-gray-700">{r.reason}</p>
-                    {r.poolId && <p className="text-xs text-gray-400 mt-1">Pool: {r.poolId}</p>}
-                  </div>
-                  {r.status === 'open' && (
-                    <button onClick={() => closeReport(r)} className="text-xs py-1.5 px-3 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex-shrink-0">
-                      Mark reviewed
-                    </button>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+
 
       {/* Pools tab */}
       {tab === 'Pools' && (
         <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Route</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Details</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Seats</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <tr className="bg-slate-900/80 border-b border-slate-800">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Route</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Details</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Seats</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Restrictions</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-800">
               {pools.map((p) => {
                 const creator = users.find(u => u.id === p.creatorId)
                 return (
-                <tr key={p.id} className="hover:bg-gray-50">
+                <tr key={p.id} className="hover:bg-slate-800/30 transition-colors">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">{p.originLabel} → {p.destinationLabel}</div>
-                    <div className="text-xs text-gray-400">{p.timeWindowStart} – {p.timeWindowEnd}</div>
+                    <div className="font-medium text-white">{p.originLabel} → {p.destinationLabel}</div>
+                    <div className="text-xs text-slate-500 uppercase tracking-tight">{p.timeWindowStart} – {p.timeWindowEnd}</div>
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
-                    <div className="text-sm text-gray-800 capitalize font-medium">{p.date === 'recurring' ? 'Recurring' : new Date(p.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">By {creator?.name?.split(' ')[0] ?? 'Unknown'} · ₹{p.estimatedTotalFare}</div>
+                    <div className="text-sm text-slate-200 capitalize font-medium">{p.date === 'recurring' ? 'Recurring' : new Date(p.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">By {creator?.name?.split(' ')[0] ?? 'Unknown'} · ₹{p.estimatedTotalFare}</div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">{p.seatsFilled}/{p.seatsTotal}</td>
+                  <td className="px-4 py-3 text-slate-400 hidden sm:table-cell">{p.seatsFilled}/{p.seatsTotal}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      p.status === 'open' ? 'bg-teal-100 text-teal-700' :
-                      p.status === 'full' ? 'bg-amber-100 text-amber-700' :
-                      p.status === 'completed' ? 'bg-green-100 text-green-700' :
-                      'bg-gray-100 text-gray-600'
+                    <div className="flex flex-wrap gap-1">
+                      {p.womenOnly && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-pink-900/30 text-pink-300 border border-pink-800/40 font-bold uppercase">Women Only</span>
+                      )}
+                      {p.verifiedOnly ? (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-900/30 text-teal-300 border border-teal-800/40 font-bold uppercase flex items-center gap-1">
+                          <Lock className="w-2.5 h-2.5" />
+                          {COLLEGES.find(c => c.id === p.collegeId)?.name.split(' ')[0] ?? 'Verified'}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 border border-slate-700 uppercase font-medium">Public</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase ${
+                      p.status === 'open' ? 'bg-teal-900/30 text-teal-300 border border-teal-800/50' :
+                      p.status === 'full' ? 'bg-amber-900/30 text-amber-300 border border-amber-800/50' :
+                      p.status === 'completed' ? 'bg-green-900/30 text-green-300 border border-green-800/50' :
+                      'bg-slate-800 text-slate-500 border border-slate-700'
                     }`}>{p.status}</span>
                   </td>
                 </tr>
@@ -277,14 +173,4 @@ export default function AdminPanel() {
       )}
     </div>
   )
-}
-
-function StatusPill({ status }: { status: string }) {
-  const cls: Record<string, string> = {
-    verified: 'bg-teal-100 text-teal-700',
-    pending: 'bg-amber-100 text-amber-700',
-    rejected: 'bg-red-100 text-red-700',
-    suspended: 'bg-gray-200 text-gray-600',
-  }
-  return <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${cls[status] ?? 'bg-gray-100 text-gray-600'}`}>{status}</span>
 }

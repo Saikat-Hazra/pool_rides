@@ -1,8 +1,7 @@
-import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
-import { Car, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { RegisterSchema, type RegisterFormData } from '@/schemas'
 import { register as registerUser, loginWithGoogle } from '@/services/authService'
@@ -40,20 +39,22 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-teal-600/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-600/5 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 font-bold text-teal-700 text-xl">
-            <div className="w-9 h-9 bg-teal-600 rounded-xl flex items-center justify-center">
-              <Car className="w-5 h-5 text-white" />
-            </div>
+          <Link to="/" className="inline-flex items-center gap-2 font-bold text-white text-xl">
+            <img src="/Pool-rides_logo.png" alt="PoolRides" className="w-9 h-9 object-contain" />
             PoolRides
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-4 mb-1">Create your account</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-white mt-4 mb-1">Create your account</h1>
+          <p className="text-sm text-slate-400">
             Already have an account?{' '}
-            <Link to="/login" className="text-teal-600 hover:underline font-medium">
+            <Link to="/login" className="text-teal-400 hover:underline font-medium">
               Sign in
             </Link>
           </p>
@@ -93,7 +94,7 @@ export default function Register() {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                   onClick={() => setShowPass(!showPass)}
                 >
                   {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -106,8 +107,8 @@ export default function Register() {
             </button>
 
             <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
-              <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-400">Or integrate swiftly</span></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800"></div></div>
+              <div className="relative flex justify-center text-sm"><span className="px-2 bg-slate-950 text-slate-500">Or integrate swiftly</span></div>
             </div>
 
             <button
@@ -127,7 +128,7 @@ export default function Register() {
                   setLoading(false)
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors shadow-sm"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-slate-800 rounded-lg text-sm font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors shadow-sm"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -139,9 +140,9 @@ export default function Register() {
             </button>
           </form>
 
-          <div className="mt-6 p-3 bg-teal-50 rounded-lg border border-teal-100">
-            <p className="text-xs text-teal-700">
-              <strong>Demo accounts:</strong> arjun@rvce.edu.in · priya@pes.edu · admin@poolrides.in — all with password <code>password123</code> (admin: admin123)
+          <div className="mt-6 p-3 bg-teal-900/20 rounded-lg border border-teal-800/30">
+            <p className="text-xs text-teal-400">
+              <strong>Demo accounts:</strong> arjun@rvce.edu.in · priya@pes.edu · admin@poolrides.in — all with password <code className="text-teal-300">password123</code> (admin: admin123)
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
   getPoolById,
   getMembersForPool,
@@ -18,7 +18,7 @@ import { StatusBadge, VerifiedBadge, WomenOnlyBadge } from '@/components/UI/Badg
 import { COLLEGES } from '@/data/seed'
 import type { Pool, PoolMember, PoolMessage, User } from '@/types'
 import {
-  MapPin, Clock, Users, IndianRupee, ArrowLeft, Send,
+  MapPin, Clock, Users, ArrowLeft, Send,
   CheckCircle, XCircle, Flag, X, AlertTriangle,
 } from 'lucide-react'
 
@@ -56,7 +56,13 @@ export default function PoolDetails() {
 
   useEffect(() => { refresh() }, [id])
 
-  if (!pool || !currentUser) return null
+  if (!pool) {
+    return <div className="p-6">Pool not found.</div>
+  }
+
+  if (!currentUser) {
+    return <div className="p-6">Please log in.</div>
+  }
 
   const myMembership = members.find((m) => m.userId === currentUser.id)
   const acceptedMembers = members.filter((m) => m.joinStatus === 'accepted')
@@ -80,7 +86,7 @@ export default function PoolDetails() {
   }
 
   function handleJoin() {
-    if (!currentUser) return
+    if (!currentUser || !pool) return
     try {
       requestJoin(pool.id, currentUser.id)
       addToast('Join request sent! Waiting for the creator to approve.', 'success')
@@ -97,18 +103,20 @@ export default function PoolDetails() {
   }
 
   function handleSendMessage() {
-    if (!msgText.trim()) return
+    if (!msgText.trim() || !pool || !currentUser) return
     postMessage(pool.id, currentUser.id, msgText.trim())
     setMsgText('')
     refresh()
   }
 
   function handleStatusUpdate(preset: string) {
+    if (!pool || !currentUser) return
     postMessage(pool.id, currentUser.id, preset, 'status_update')
     refresh()
   }
 
   function handleCompleteRide() {
+    if (!pool) return
     updatePoolStatus(pool.id, 'completed')
     // Record savings for all accepted members
     for (const m of acceptedMembers) {
@@ -126,6 +134,7 @@ export default function PoolDetails() {
   }
 
   function handleReport() {
+    if (!pool || !currentUser) return
     if (reportReason.trim().length < 10) {
       addToast('Please provide more detail (min 10 characters).', 'error')
       return
@@ -139,7 +148,7 @@ export default function PoolDetails() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       {/* Back */}
-      <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-6 transition-colors">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-200 mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back
       </button>
 
@@ -155,41 +164,41 @@ export default function PoolDetails() {
                 <WomenOnlyBadge show={pool.womenOnly} />
               </div>
               {!isCreator && (isMember || isPending || pool.status === 'open') && (
-                <button onClick={() => setShowReport(true)} className="text-xs text-gray-400 hover:text-red-500 flex items-center gap-1 transition-colors">
+                <button onClick={() => setShowReport(true)} className="text-xs text-slate-500 hover:text-red-400 flex items-center gap-1 transition-colors">
                   <Flag className="w-3.5 h-3.5" /> Report
                 </button>
               )}
             </div>
 
-            <p className="text-xs text-teal-600 font-medium mb-2">{collegeName}</p>
+            <p className="text-xs text-teal-400 font-medium mb-2">{collegeName}</p>
 
             {/* Route visual */}
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex flex-col items-center gap-1">
-                <div className="w-3 h-3 rounded-full bg-teal-500 ring-2 ring-teal-200" />
-                <div className="w-px h-8 bg-gray-200" />
-                <div className="w-3 h-3 rounded-full bg-amber-400 ring-2 ring-amber-200" />
+              <div className="flex flex-col items-center gap-1 opacity-80">
+                <div className="w-3 h-3 rounded-full bg-teal-500 ring-4 ring-teal-500/10" />
+                <div className="w-px h-8 bg-slate-800" />
+                <div className="w-3 h-3 rounded-full bg-amber-400 ring-4 ring-amber-400/10" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900">{pool.originLabel}</p>
-                <p className="text-sm text-gray-500 mt-2">{pool.destinationLabel}</p>
+                <p className="font-semibold text-white">{pool.originLabel}</p>
+                <p className="text-sm text-slate-400 mt-2">{pool.destinationLabel}</p>
               </div>
             </div>
 
             {pool.pickupNotes && (
-              <div className="flex gap-2 p-3 bg-gray-50 rounded-lg mb-3">
-                <MapPin className="w-4 h-4 text-teal-500 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-gray-700">{pool.pickupNotes}</p>
+              <div className="flex gap-2 p-3 bg-slate-900/50 rounded-lg mb-3 border border-slate-800/50">
+                <MapPin className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-slate-300">{pool.pickupNotes}</p>
               </div>
             )}
 
-            <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+            <div className="flex flex-wrap gap-4 text-sm text-slate-300">
               <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-gray-400" />
+                <Clock className="w-4 h-4 text-slate-500" />
                 {pool.timeWindowStart} – {pool.timeWindowEnd}
               </span>
               <span className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-gray-400" />
+                <Users className="w-4 h-4 text-slate-500" />
                 {pool.seatsFilled}/{pool.seatsTotal} seats filled
               </span>
             </div>
@@ -197,7 +206,7 @@ export default function PoolDetails() {
             {pool.recurrenceDays && (
               <div className="flex gap-1 flex-wrap mt-3">
                 {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-                  <span key={d} className={`text-xs px-1.5 py-0.5 rounded font-medium ${pool.recurrenceDays?.includes(d as any) ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-400'}`}>{d}</span>
+                  <span key={d} className={`text-xs px-1.5 py-0.5 rounded font-medium ${pool.recurrenceDays?.includes(d as any) ? 'bg-teal-900/40 text-teal-400 border border-teal-800/50' : 'bg-slate-900 text-slate-600'}`}>{d}</span>
                 ))}
               </div>
             )}
@@ -209,10 +218,10 @@ export default function PoolDetails() {
               <h2 className="section-title mb-4">Join requests ({pendingMembers.length})</h2>
               <div className="flex flex-col gap-3">
                 {pendingMembers.map((m) => (
-                  <div key={m.id} className="flex items-center justify-between p-3 bg-amber-50 rounded-lg border border-amber-200">
+                  <div key={m.id} className="flex items-center justify-between p-3 bg-amber-900/10 rounded-lg border border-amber-800/30">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{getUserName(m.userId)}</p>
-                      <p className="text-xs text-gray-500">Requested to join</p>
+                      <p className="text-sm font-medium text-white">{getUserName(m.userId)}</p>
+                      <p className="text-xs text-amber-500/80">Requested to join</p>
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => handleRespond(m.id, true)} className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg bg-teal-600 text-white hover:bg-teal-700 transition-colors">
@@ -235,10 +244,10 @@ export default function PoolDetails() {
             {/* Status update presets */}
             {(isMember || isCreator) && pool.status === 'open' && (
               <div className="mb-4">
-                <p className="text-xs text-gray-500 mb-2">Quick updates:</p>
+                <p className="text-xs text-slate-500 mb-2">Quick updates:</p>
                 <div className="flex gap-2 flex-wrap">
                   {STATUS_UPDATE_PRESETS.map((p) => (
-                    <button key={p} onClick={() => handleStatusUpdate(p)} className="text-xs px-2.5 py-1.5 rounded-full bg-gray-100 hover:bg-teal-100 hover:text-teal-700 text-gray-700 transition-colors border border-transparent hover:border-teal-200">
+                    <button key={p} onClick={() => handleStatusUpdate(p)} className="text-xs px-2.5 py-1.5 rounded-full bg-slate-900 hover:bg-teal-900/50 hover:text-teal-300 text-slate-400 transition-all border border-slate-800 hover:border-teal-700">
                       {p}
                     </button>
                   ))}
@@ -253,17 +262,17 @@ export default function PoolDetails() {
               ) : (
                 messages.map((msg) => (
                   <div key={msg.id} className={`flex gap-2 ${msg.userId === currentUser.id ? 'flex-row-reverse' : ''}`}>
-                    <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 text-xs font-bold text-teal-700">
+                    <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0 text-xs font-bold text-teal-400 border border-slate-700">
                       {getUserName(msg.userId).charAt(0)}
                     </div>
                     <div className={`flex flex-col gap-0.5 max-w-xs ${msg.userId === currentUser.id ? 'items-end' : ''}`}>
-                      <span className="text-xs text-gray-400">{getUserName(msg.userId)}</span>
-                      <div className={`px-3 py-2 rounded-xl text-sm ${
+                      <span className="text-[10px] text-slate-500 px-1">{getUserName(msg.userId)}</span>
+                      <div className={`px-3 py-2 rounded-2xl text-sm ${
                         msg.messageType === 'status_update'
-                          ? 'bg-teal-50 border border-teal-200 text-teal-800'
+                          ? 'bg-teal-900/20 border border-teal-800/50 text-teal-200'
                           : msg.userId === currentUser.id
-                          ? 'bg-teal-600 text-white'
-                          : 'bg-gray-100 text-gray-800'
+                          ? 'bg-teal-600 text-white shadow-lg shadow-teal-900/20'
+                          : 'bg-slate-800 text-slate-200'
                       }`}>
                         {msg.body}
                       </div>
@@ -298,20 +307,20 @@ export default function PoolDetails() {
             <h2 className="section-title mb-4">Cost split</h2>
             <div className="flex flex-col gap-3">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Estimated total</span>
-                <span className="font-semibold">₹{pool.estimatedTotalFare}</span>
+                <span className="text-slate-400">Estimated total</span>
+                <span className="font-semibold text-white">₹{pool.estimatedTotalFare}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Confirmed riders</span>
-                <span className="font-semibold">{acceptedMembers.length}</span>
+                <span className="text-slate-400">Confirmed riders</span>
+                <span className="font-semibold text-white">{acceptedMembers.length}</span>
               </div>
-              <div className="border-t border-gray-100 pt-3 flex justify-between">
-                <span className="text-sm font-semibold">Your share</span>
-                <span className="text-lg font-bold text-teal-700">₹{splitAmount}</span>
+              <div className="border-t border-slate-800 pt-3 flex justify-between">
+                <span className="text-sm font-semibold text-slate-300">Your share</span>
+                <span className="text-lg font-bold text-teal-400">₹{splitAmount}</span>
               </div>
               {savings > 0 && (
-                <div className="p-2.5 bg-green-50 rounded-lg border border-green-200 text-center">
-                  <span className="text-sm font-semibold text-green-700">You save ₹{savings} vs solo</span>
+                <div className="p-2.5 bg-green-900/20 rounded-lg border border-green-800/30 text-center">
+                  <span className="text-sm font-semibold text-green-400">You save ₹{savings} vs solo</span>
                 </div>
               )}
             </div>
@@ -323,12 +332,12 @@ export default function PoolDetails() {
             <div className="flex flex-col gap-2">
               {acceptedMembers.map((m) => (
                 <div key={m.id} className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-teal-100 flex items-center justify-center text-sm font-bold text-teal-700">
+                  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-teal-400 border border-slate-700">
                     {getUserName(m.userId).charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium text-gray-900 truncate block">{getUserName(m.userId)}</span>
-                    {m.role === 'creator' && <span className="text-xs text-gray-400">Creator</span>}
+                    <span className="text-sm font-medium text-white truncate block">{getUserName(m.userId)}</span>
+                    {m.role === 'creator' && <span className="text-xs text-slate-500">Creator</span>}
                   </div>
                   <VerifiedBadge verified={getUserVerified(m.userId)} />
                 </div>
@@ -356,7 +365,7 @@ export default function PoolDetails() {
               </div>
             )}
             {isMember && !isCreator && (
-              <button onClick={() => addToast('You have left the pool.', 'info')} className="btn-secondary w-full text-red-600 border-red-200 hover:bg-red-50">
+              <button onClick={() => addToast('You have left the pool.', 'info')} className="btn-secondary w-full text-red-400 border-red-900/50 hover:bg-red-900/20">
                 Leave pool
               </button>
             )}
@@ -366,7 +375,7 @@ export default function PoolDetails() {
               </button>
             )}
             {isCreator && pool.status === 'open' && (
-              <button onClick={() => { updatePoolStatus(pool.id, 'cancelled'); refresh(); addToast('Pool cancelled.', 'info') }} className="btn-secondary w-full text-red-600 border-red-200">
+              <button onClick={() => { updatePoolStatus(pool.id, 'cancelled'); refresh(); addToast('Pool cancelled.', 'info') }} className="btn-secondary w-full text-red-400 border-red-900/50 hover:bg-red-900/20">
                 <X className="w-4 h-4" /> Cancel pool
               </button>
             )}
@@ -376,16 +385,16 @@ export default function PoolDetails() {
 
       {/* Report modal */}
       {showReport && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl animate-fade-in">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-md shadow-2xl animate-fade-in text-white">
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="w-5 h-5 text-red-500" />
-              <h3 className="font-semibold text-gray-900">Report this pool</h3>
+              <h3 className="font-semibold whitespace-nowrap">Report this pool</h3>
             </div>
             <textarea
               value={reportReason}
               onChange={(e) => setReportReason(e.target.value)}
-              className="input-field h-28 resize-none mb-4"
+              className="input-field h-28 resize-none mb-4 bg-slate-950 border-slate-800"
               placeholder="Describe the issue (min 10 characters)…"
             />
             <div className="flex justify-end gap-2">

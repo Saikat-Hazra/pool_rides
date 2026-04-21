@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import { usePoolStore } from '@/store/poolStore'
 import { getAllPools } from '@/services/poolService'
@@ -51,27 +51,27 @@ export default function Discover() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="page-title">Discover pools</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{ranked.length} pool{ranked.length !== 1 ? 's' : ''} found</p>
+          <p className="text-sm text-slate-400 mt-0.5">{ranked.length} pool{ranked.length !== 1 ? 's' : ''} found</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn-secondary gap-2 relative ${showFilters ? 'border-teal-400 text-teal-700 bg-teal-50' : ''}`}
+            className={`btn-secondary gap-2 relative ${showFilters ? 'border-teal-500/50 text-teal-400 bg-teal-900/30' : ''}`}
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filters
-            {hasActiveFilters && <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-teal-500" />}
+            {hasActiveFilters && <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-teal-500 shadow-sm shadow-teal-500/50" />}
           </button>
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+          <div className="flex rounded-lg border border-slate-800 overflow-hidden bg-slate-900/50">
             <button
               onClick={() => setView('grid')}
-              className={`px-3 py-2 ${view === 'grid' ? 'bg-teal-50 text-teal-700' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`px-3 py-2 transition-colors ${view === 'grid' ? 'bg-teal-900/40 text-teal-400' : 'text-slate-500 hover:bg-slate-800'}`}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setView('list')}
-              className={`px-3 py-2 ${view === 'list' ? 'bg-teal-50 text-teal-700' : 'text-gray-500 hover:bg-gray-50'}`}
+              className={`px-3 py-2 transition-colors ${view === 'list' ? 'bg-teal-900/40 text-teal-400' : 'text-slate-500 hover:bg-slate-800'}`}
             >
               <List className="w-4 h-4" />
             </button>
@@ -83,7 +83,7 @@ export default function Discover() {
       {showFilters && (
         <div className="card p-5 mb-6 animate-fade-in">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Filter pools</h3>
+            <h3 className="font-semibold text-white">Filter pools</h3>
             <div className="flex gap-2">
               {hasActiveFilters && (
                 <button onClick={resetFilters} className="text-xs text-red-500 hover:underline flex items-center gap-1">
@@ -130,19 +130,19 @@ export default function Discover() {
             </div>
           </div>
           <div className="flex gap-4 mt-4 flex-wrap">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-slate-400 cursor-pointer hover:text-slate-200 transition-colors">
               <input
                 type="checkbox"
-                className="rounded border-gray-300 text-teal-600"
+                className="rounded border-slate-800 bg-slate-900 text-teal-500 focus:ring-teal-500/20"
                 checked={filters.womenOnly}
                 onChange={(e) => setFilters({ womenOnly: e.target.checked })}
               />
               Women-only pools
             </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-slate-400 cursor-pointer hover:text-slate-200 transition-colors">
               <input
                 type="checkbox"
-                className="rounded border-gray-300 text-teal-600"
+                className="rounded border-slate-800 bg-slate-900 text-teal-500 focus:ring-teal-500/20"
                 checked={filters.verifiedOnly}
                 onChange={(e) => setFilters({ verifiedOnly: e.target.checked })}
               />

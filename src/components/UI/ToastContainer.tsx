@@ -1,4 +1,3 @@
-import React from 'react'
 import { useUIStore } from '@/store/uiStore'
 import { CheckCircle, XCircle, Info, X } from 'lucide-react'
 
@@ -9,9 +8,9 @@ const ICONS = {
 }
 
 const BG = {
-  success: 'bg-green-50 border-green-200',
-  error: 'bg-red-50 border-red-200',
-  info: 'bg-teal-50 border-teal-200',
+  success: 'bg-slate-900 border-green-900/30 shadow-green-900/10',
+  error: 'bg-slate-900 border-red-900/30 shadow-red-900/10',
+  info: 'bg-slate-900 border-teal-900/30 shadow-teal-900/10',
 }
 
 export default function ToastContainer() {
@@ -24,11 +23,12 @@ export default function ToastContainer() {
           key={toast.id}
           className={`flex items-start gap-3 p-4 rounded-lg border shadow-md animate-slide-up pointer-events-auto ${BG[toast.type]}`}
         >
+
           {ICONS[toast.type]}
-          <span className="text-sm text-gray-800 flex-1">{toast.message}</span>
+          <span className="text-sm text-white flex-1">{toast.message}</span>
           <button
             onClick={() => removeToast(toast.id)}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-slate-500 hover:text-slate-300 transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>

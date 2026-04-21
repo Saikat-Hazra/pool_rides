@@ -1,8 +1,12 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CreatePoolSchema, type CreatePoolFormData } from '@/schemas'
+import { CreatePoolSchema } from '@/schemas'
+import { z } from 'zod'
+
+type FormInput = z.input<typeof CreatePoolSchema>
+type FormOutput = z.output<typeof CreatePoolSchema>
 import { useAuthStore } from '@/store/authStore'
 import { usePoolStore } from '@/store/poolStore'
 import { useUIStore } from '@/store/uiStore'
@@ -28,7 +32,7 @@ export default function CreatePool() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<CreatePoolFormData>({
+  } = useForm<FormInput, any, FormOutput>({
     resolver: zodResolver(CreatePoolSchema),
     defaultValues: {
       seatsTotal: 3,
@@ -41,8 +45,8 @@ export default function CreatePool() {
   })
 
   const isRecurring = watch('isRecurring')
-  const fare = watch('estimatedTotalFare') || 0
-  const seats = watch('seatsTotal') || 1
+  const fare = Number(watch('estimatedTotalFare') || 0)
+  const seats = Number(watch('seatsTotal') || 1)
   const splitPreview = Math.round(fare / seats)
 
   if (!currentUser) return null
@@ -55,7 +59,7 @@ export default function CreatePool() {
     setValue('recurrenceDays', next)
   }
 
-  async function onSubmit(data: CreatePoolFormData) {
+  async function onSubmit(data: FormOutput) {
     if (!currentUser) return
 
     // Enforce: unverified users cannot create women-only pools
@@ -75,7 +79,7 @@ export default function CreatePool() {
         destCoords: data.destCoords,
         pickupNotes: data.pickupNotes,
         dropNotes: data.dropNotes,
-        date: isRecurring ? 'recurring' : data.date,
+        date: isRecurring ? 'recurring' : (data.date ?? ''),
         recurrenceDays: isRecurring ? selectedDays : undefined,
         timeWindowStart: data.timeWindowStart,
         timeWindowEnd: data.timeWindowEnd,
@@ -99,7 +103,7 @@ export default function CreatePool() {
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="mb-6">
         <h1 className="page-title">Create a pool</h1>
-        <p className="text-sm text-gray-500 mt-1">Set up a recurring commute pool for your route. Others can discover and request to join.</p>
+        <p className="text-sm text-slate-400 mt-1">Set up a recurring commute pool for your route. Others can discover and request to join.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -112,12 +116,12 @@ export default function CreatePool() {
               <button
                 type="button"
                 onClick={() => setMapModalTarget('origin')}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-700 bg-white hover:bg-gray-50 flex items-center justify-between text-left transition-colors focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                className="w-full rounded-lg border border-slate-800 px-3 py-2.5 text-sm text-slate-200 bg-slate-900/80 hover:bg-slate-800/80 flex items-center justify-between text-left transition-colors focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               >
-                <span className={watch('originLabel') ? 'text-gray-900 line-clamp-1 pr-2' : 'text-gray-400'}>
+                <span className={watch('originLabel') ? 'text-white line-clamp-1 pr-2' : 'text-slate-500'}>
                   {watch('originLabel') || 'Tap to set origin on map...'}
                 </span>
-                <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
               </button>
               {errors.originLabel && <p className="text-xs text-red-500 mt-1">{errors.originLabel.message}</p>}
             </div>
@@ -126,12 +130,12 @@ export default function CreatePool() {
               <button
                 type="button"
                 onClick={() => setMapModalTarget('dest')}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm text-gray-700 bg-white hover:bg-gray-50 flex items-center justify-between text-left transition-colors focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                className="w-full rounded-lg border border-slate-800 px-3 py-2.5 text-sm text-slate-200 bg-slate-900/80 hover:bg-slate-800/80 flex items-center justify-between text-left transition-colors focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               >
-                <span className={watch('destinationLabel') ? 'text-gray-900 line-clamp-1 pr-2' : 'text-gray-400'}>
+                <span className={watch('destinationLabel') ? 'text-white line-clamp-1 pr-2' : 'text-slate-500'}>
                   {watch('destinationLabel') || 'Tap to set destination map...'}
                 </span>
-                <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
               </button>
               {errors.destinationLabel && <p className="text-xs text-red-500 mt-1">{errors.destinationLabel.message}</p>}
             </div>
@@ -164,10 +168,10 @@ export default function CreatePool() {
                       key={d}
                       type="button"
                       onClick={() => toggleDay(d)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
                         selectedDays.includes(d)
-                          ? 'bg-teal-600 text-white border-teal-600'
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-teal-300'
+                          ? 'bg-teal-600 text-white border-teal-600 shadow-lg shadow-teal-900/20'
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
                       }`}
                     >
                       {d}
@@ -210,7 +214,7 @@ export default function CreatePool() {
               <div>
                 <label className="label" htmlFor="fare">Estimated total fare (₹)</label>
                 <div className="relative">
-                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
                   <input id="fare" type="number" min={1} {...register('estimatedTotalFare')} className="input-field pl-8" />
                 </div>
                 {errors.estimatedTotalFare && <p className="text-xs text-red-500 mt-1">{errors.estimatedTotalFare.message}</p>}
@@ -218,11 +222,11 @@ export default function CreatePool() {
             </div>
 
             {/* Cost preview */}
-            <div className="flex items-start gap-2 p-3 bg-teal-50 rounded-lg border border-teal-100">
-              <Info className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-teal-800">
+            <div className="flex items-start gap-2 p-3 bg-teal-900/20 rounded-lg border border-teal-800/30">
+              <Info className="w-4 h-4 text-teal-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-teal-200">
                 With {seats} rider{seats !== 1 ? 's' : ''}, each person pays approximately{' '}
-                <strong>₹{splitPreview}</strong> per ride.
+                <strong className="text-white">₹{splitPreview}</strong> per ride.
               </p>
             </div>
           </div>
@@ -242,17 +246,17 @@ export default function CreatePool() {
             </div>
             <div className="flex flex-col gap-3">
               <label className="flex items-center gap-3 text-sm cursor-pointer">
-                <input type="checkbox" {...register('verifiedOnly')} className="rounded border-gray-300 text-teal-600" />
+                <input type="checkbox" {...register('verifiedOnly')} className="rounded border-slate-700 bg-slate-900 text-teal-600" />
                 <span>
-                  <span className="font-medium">Verified students only</span>
-                  <span className="text-gray-500"> — only campus-verified users can join</span>
+                  <span className="font-medium text-slate-200">Verified students only</span>
+                  <span className="text-slate-500 ml-1.5"> — only campus-verified users can join</span>
                 </span>
               </label>
               <label className="flex items-center gap-3 text-sm cursor-pointer">
-                <input type="checkbox" {...register('womenOnly')} className="rounded border-gray-300 text-teal-600" />
+                <input type="checkbox" {...register('womenOnly')} className="rounded border-slate-700 bg-slate-900 text-teal-600" />
                 <span>
-                  <span className="font-medium">Women-only pool</span>
-                  <span className="text-gray-500"> — requires campus verification</span>
+                  <span className="font-medium text-slate-200">Women-only pool</span>
+                  <span className="text-slate-500 ml-1.5"> — requires campus verification</span>
                 </span>
               </label>
             </div>
