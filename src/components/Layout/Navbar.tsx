@@ -43,7 +43,13 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link to={currentUser?.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2 font-bold text-white text-lg">
-            <img src="/Pool-rides_logo.png" alt="PoolRides" className="w-8 h-8 object-contain" />
+            <img 
+              src="/Pool-rides_logo.png" 
+              alt="PoolRides" 
+              className="w-8 h-8 object-contain" 
+              width={32}
+              height={32}
+            />
             PoolRides
           </Link>
 
